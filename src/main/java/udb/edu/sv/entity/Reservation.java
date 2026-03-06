@@ -1,8 +1,8 @@
 package udb.edu.sv.entity;
 
-import udb.edu.sv.entity.enums.ReservationStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import udb.edu.sv.entity.enums.ReservationStatus;
 
 import java.time.LocalDateTime;
 
@@ -37,4 +37,5 @@ public class Reservation {
     private ReservationStatus status;
 
     private LocalDateTime reservationDate;
+
 }

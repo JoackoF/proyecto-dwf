@@ -1,17 +1,17 @@
 package udb.edu.sv.service;
 
-import udb.edu.sv.entity.Flight;
+import udb.edu.sv.dto.FlightDTO;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface FlightService {
 
-    Flight save(Flight flight);
+    FlightDTO save(FlightDTO flightDTO);
 
-    List<Flight> findAll();
+    List<FlightDTO> findAll();
 
-    Optional<Flight> findById(Long id);
+    Optional<FlightDTO> findById(Long id);
 
     void deleteById(Long id);
 }

@@ -18,10 +18,12 @@ public class Passenger {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String fullName;
 
     private LocalDate birthDate;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String passportNumber;
+
 }

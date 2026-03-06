@@ -1,8 +1,8 @@
 package udb.edu.sv.entity;
 
-import udb.edu.sv.entity.enums.ClaimStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import udb.edu.sv.entity.enums.ClaimStatus;
 
 import java.time.LocalDateTime;
 
@@ -30,4 +30,5 @@ public class Claim {
     private ClaimStatus status;
 
     private LocalDateTime createdAt;
+
 }

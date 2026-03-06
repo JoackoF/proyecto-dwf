@@ -1,8 +1,8 @@
 package udb.edu.sv.entity;
 
-import udb.edu.sv.entity.enums.PaymentType;
 import jakarta.persistence.*;
 import lombok.*;
+import udb.edu.sv.entity.enums.PaymentType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -30,4 +30,5 @@ public class Payment {
     private BigDecimal amount;
 
     private LocalDateTime paymentDate;
+
 }
