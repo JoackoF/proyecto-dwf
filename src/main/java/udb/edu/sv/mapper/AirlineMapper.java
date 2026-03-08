@@ -1,14 +1,31 @@
 package udb.edu.sv.mapper;
 
-import org.mapstruct.Mapper;
+import org.springframework.stereotype.Component;
 import udb.edu.sv.dto.AirlineDTO;
 import udb.edu.sv.entity.Airline;
 
-@Mapper(componentModel = "spring")
-public interface AirlineMapper {
+@Component
+public class AirlineMapper {
 
-    AirlineDTO toDTO(Airline airline);
+    public AirlineDTO toDTO(Airline airline) {
 
-    Airline toEntity(AirlineDTO dto);
+        if (airline == null) return null;
 
+        return AirlineDTO.builder()
+                .id(airline.getId())
+                .name(airline.getName())
+                .code(airline.getCode())
+                .build();
+    }
+
+    public Airline toEntity(AirlineDTO dto) {
+
+        if (dto == null) return null;
+
+        return Airline.builder()
+                .id(dto.getId())
+                .name(dto.getName())
+                .code(dto.getCode())
+                .build();
+    }
 }

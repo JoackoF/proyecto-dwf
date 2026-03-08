@@ -1,17 +1,17 @@
 package udb.edu.sv.service;
 
-import udb.edu.sv.entity.Reservation;
+import udb.edu.sv.dto.ReservationDTO;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface ReservationService {
 
-    Reservation save(Reservation reservation);
+    ReservationDTO save(ReservationDTO reservationDTO);
 
-    List<Reservation> findAll();
+    List<ReservationDTO> findAll();
 
-    Optional<Reservation> findById(Long id);
+    Optional<ReservationDTO> findById(Long id);
 
     void deleteById(Long id);
 }

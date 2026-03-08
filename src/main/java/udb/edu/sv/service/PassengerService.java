@@ -1,17 +1,17 @@
 package udb.edu.sv.service;
 
-import udb.edu.sv.entity.Passenger;
+import udb.edu.sv.dto.PassengerDTO;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface PassengerService {
 
-    Passenger save(Passenger passenger);
+    PassengerDTO save(PassengerDTO passengerDTO);
 
-    List<Passenger> findAll();
+    List<PassengerDTO> findAll();
 
-    Optional<Passenger> findById(Long id);
+    Optional<PassengerDTO> findById(Long id);
 
     void deleteById(Long id);
 }

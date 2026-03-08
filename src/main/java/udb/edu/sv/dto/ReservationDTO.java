@@ -1,6 +1,9 @@
 package udb.edu.sv.dto;
 
 import lombok.*;
+import udb.edu.sv.entity.enums.ReservationStatus;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -13,9 +16,13 @@ public class ReservationDTO {
 
     private Long flightId;
 
-    private String passengerName;
+    private Long passengerId;
+
+    private Long userId;
 
     private String seatNumber;
 
-    private String status;
+    private ReservationStatus status;
+
+    private LocalDateTime reservationDate;
 }

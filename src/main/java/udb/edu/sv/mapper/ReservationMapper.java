@@ -9,8 +9,10 @@ import udb.edu.sv.entity.Reservation;
 public interface ReservationMapper {
 
     @Mapping(source = "flight.id", target = "flightId")
+    @Mapping(source = "passenger.id", target = "passengerId")
     ReservationDTO toDTO(Reservation reservation);
 
     @Mapping(source = "flightId", target = "flight.id")
+    @Mapping(source = "passengerId", target = "passenger.id")
     Reservation toEntity(ReservationDTO dto);
 }

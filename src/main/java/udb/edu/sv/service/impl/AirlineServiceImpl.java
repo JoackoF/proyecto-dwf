@@ -29,6 +29,7 @@ public class AirlineServiceImpl implements AirlineService {
 
     @Override
     public List<AirlineDTO> findAll() {
+
         return airlineRepository.findAll()
                 .stream()
                 .map(airlineMapper::toDTO)
@@ -37,12 +38,14 @@ public class AirlineServiceImpl implements AirlineService {
 
     @Override
     public Optional<AirlineDTO> findById(Long id) {
+
         return airlineRepository.findById(id)
                 .map(airlineMapper::toDTO);
     }
 
     @Override
     public void deleteById(Long id) {
+
         airlineRepository.deleteById(id);
     }
 }

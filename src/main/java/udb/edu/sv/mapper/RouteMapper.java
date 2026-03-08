@@ -10,5 +10,4 @@ public interface RouteMapper {
     RouteDTO toDTO(Route route);
 
     Route toEntity(RouteDTO dto);
-
 }

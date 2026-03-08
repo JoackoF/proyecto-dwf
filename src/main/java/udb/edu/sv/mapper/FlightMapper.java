@@ -13,5 +13,8 @@ public interface FlightMapper {
     @Mapping(source = "route.id", target = "routeId")
     FlightDTO toDTO(Flight flight);
 
-    Flight toEntity(FlightDTO flightDTO);
+    @Mapping(source = "airlineId", target = "airline.id")
+    @Mapping(source = "aircraftId", target = "aircraft.id")
+    @Mapping(source = "routeId", target = "route.id")
+    Flight toEntity(FlightDTO dto);
 }
