@@ -1,5 +1,6 @@
 package udb.edu.sv.service;
 
+import udb.edu.sv.dto.BookingRequestDTO;
 import udb.edu.sv.dto.ReservationDTO;
 
 import java.util.List;
@@ -14,4 +15,7 @@ public interface ReservationService {
     Optional<ReservationDTO> findById(Long id);
 
     void deleteById(Long id);
+
+    void bookFlight(BookingRequestDTO request);
+
 }

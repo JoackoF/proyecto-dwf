@@ -14,23 +14,21 @@ public class FlightController {
 
     private final FlightService flightService;
 
-    @PostMapping
-    public FlightDTO create(@RequestBody FlightDTO flightDTO) {
-        return flightService.save(flightDTO);
-    }
-
     @GetMapping
-    public List<FlightDTO> getAll() {
+    public List<FlightDTO> getAllFlights() {
         return flightService.findAll();
     }
 
     @GetMapping("/{id}")
-    public FlightDTO getById(@PathVariable Long id) {
+    public FlightDTO getFlightById(@PathVariable Long id) {
         return flightService.findById(id).orElse(null);
     }
 
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        flightService.deleteById(id);
+    @GetMapping("/search")
+    public List<FlightDTO> searchFlights(
+            @RequestParam String origin,
+            @RequestParam String destination) {
+        return flightService.searchFlights(origin, destination);
     }
+
 }

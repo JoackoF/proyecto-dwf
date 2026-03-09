@@ -2,14 +2,15 @@ package udb.edu.sv.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 import udb.edu.sv.dto.FlightDTO;
-import udb.edu.sv.entity.Flight;
 import udb.edu.sv.mapper.FlightMapper;
 import udb.edu.sv.repository.FlightRepository;
 import udb.edu.sv.service.FlightService;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,11 +21,9 @@ public class FlightServiceImpl implements FlightService {
 
     @Override
     public FlightDTO save(FlightDTO flightDTO) {
-
-        Flight flight = flightMapper.toEntity(flightDTO);
-        Flight saved = flightRepository.save(flight);
-
-        return flightMapper.toDTO(saved);
+        return flightMapper.toDTO(
+                flightRepository.save(
+                        flightMapper.toEntity(flightDTO)));
     }
 
     @Override
@@ -32,7 +31,7 @@ public class FlightServiceImpl implements FlightService {
         return flightRepository.findAll()
                 .stream()
                 .map(flightMapper::toDTO)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -44,5 +43,16 @@ public class FlightServiceImpl implements FlightService {
     @Override
     public void deleteById(Long id) {
         flightRepository.deleteById(id);
+    }
+
+    @Override
+    public List<FlightDTO> searchFlights(String origin, String destination) {
+
+        return flightRepository
+                .findByRouteOriginAndRouteDestination(origin, destination)
+                .stream()
+                .map(flightMapper::toDTO)
+                .collect(Collectors.toList());
+
     }
 }

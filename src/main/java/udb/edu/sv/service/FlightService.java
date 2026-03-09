@@ -14,4 +14,7 @@ public interface FlightService {
     Optional<FlightDTO> findById(Long id);
 
     void deleteById(Long id);
+
+    List<FlightDTO> searchFlights(String origin, String destination);
+
 }
