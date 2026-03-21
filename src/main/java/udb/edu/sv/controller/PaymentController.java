@@ -36,7 +36,7 @@ public class PaymentController {
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<PaymentDTO>> getById(@PathVariable Long id) {
         return paymentService.findById(id)
-                .map(dto -> ResponseEntity.ok(ResponseBuilder.success(dto)))
+                .map(dto -> ResponseEntity.ok(ResponseBuilder.success(dto, "Payment record retrieved successfully by ID:" + id)))
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(ResponseBuilder.error("Payment record not found with ID: " + id)));
     }
@@ -45,7 +45,7 @@ public class PaymentController {
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         paymentService.deleteById(id);
         return ResponseEntity.ok(
-                ResponseBuilder.success(null, "Payment record deleted successfully")
+                ResponseBuilder.success(null, "Payment record deleted successfully by ID: " + id)
         );
     }
 }

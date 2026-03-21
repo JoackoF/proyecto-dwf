@@ -22,14 +22,14 @@ public class FlightController {
     public ResponseEntity<ApiResponse<List<FlightDTO>>> getAllFlights() {
         List<FlightDTO> flights = flightService.findAll();
         return ResponseEntity.ok(
-                ResponseBuilder.success(flights, "Flights retrieved successfully")
+                ResponseBuilder.success(flights, "Flight list retrieved successfully")
         );
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<FlightDTO>> getFlightById(@PathVariable Long id) {
         return flightService.findById(id)
-                .map(dto -> ResponseEntity.ok(ResponseBuilder.success(dto)))
+                .map(dto -> ResponseEntity.ok(ResponseBuilder.success(dto, "Flight retrieved successfully by ID: " + id)))
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(ResponseBuilder.error("Flight not found with ID: " + id)));
     }

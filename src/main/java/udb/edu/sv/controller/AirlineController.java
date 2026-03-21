@@ -36,7 +36,7 @@ public class AirlineController {
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<AirlineDTO>> getById(@PathVariable Long id) {
         return airlineService.findById(id)
-                .map(dto -> ResponseEntity.ok(ResponseBuilder.success(dto)))
+                .map(dto -> ResponseEntity.ok(ResponseBuilder.success(dto, "Airline retrieved successfully by ID: " + id)))
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(ResponseBuilder.error("Airline not found with ID: " + id)));
     }
@@ -45,7 +45,7 @@ public class AirlineController {
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         airlineService.deleteById(id);
         return ResponseEntity.ok(
-                ResponseBuilder.success(null, "Airline deleted successfully")
+                ResponseBuilder.success(null, "Airline deleted successfully by ID: " + id)
         );
     }
 }

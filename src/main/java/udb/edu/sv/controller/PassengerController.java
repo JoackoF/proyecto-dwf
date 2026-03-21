@@ -36,7 +36,7 @@ public class PassengerController {
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<PassengerDTO>> getById(@PathVariable Long id) {
         return passengerService.findById(id)
-                .map(dto -> ResponseEntity.ok(ResponseBuilder.success(dto)))
+                .map(dto -> ResponseEntity.ok(ResponseBuilder.success(dto, "Passenger retrieved successfully by ID" + id)))
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(ResponseBuilder.error("Passenger not found with ID: " + id)));
     }
@@ -45,7 +45,7 @@ public class PassengerController {
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         passengerService.deleteById(id);
         return ResponseEntity.ok(
-                ResponseBuilder.success(null, "Passenger deleted successfully")
+                ResponseBuilder.success(null, "Passenger deleted successfully by ID: " + id)
         );
     }
 }

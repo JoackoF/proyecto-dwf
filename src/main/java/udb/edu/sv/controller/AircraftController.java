@@ -29,7 +29,7 @@ public class AircraftController {
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<AircraftDTO>> getById(@PathVariable Long id) {
         return aircraftService.findById(id)
-                .map(dto -> ResponseEntity.ok(ResponseBuilder.success(dto)))
+                .map(dto -> ResponseEntity.ok(ResponseBuilder.success(dto, "Aircraft retrieved successfully by ID: " + id)))
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(ResponseBuilder.error("Aircraft not found with ID: " + id)));
     }
@@ -52,7 +52,7 @@ public class AircraftController {
         aircraftService.deleteById(id);
 
         return ResponseEntity.ok(
-                ResponseBuilder.success(null, "Aircraft deleted successfully")
+                ResponseBuilder.success(null, "Aircraft deleted successfully by ID: " + id)
         );
     }
 }

@@ -36,7 +36,7 @@ public class RouteController {
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<RouteDTO>> getById(@PathVariable Long id) {
         return routeService.findById(id)
-                .map(dto -> ResponseEntity.ok(ResponseBuilder.success(dto)))
+                .map(dto -> ResponseEntity.ok(ResponseBuilder.success(dto, "Route retrieved successfully by ID: " + id)))
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(ResponseBuilder.error("Route not found with ID: " + id)));
     }
@@ -45,7 +45,7 @@ public class RouteController {
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         routeService.deleteById(id);
         return ResponseEntity.ok(
-                ResponseBuilder.success(null, "Route deleted successfully")
+                ResponseBuilder.success(null, "Route deleted successfully by ID: " + id)
         );
     }
 }
