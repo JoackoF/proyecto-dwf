@@ -28,9 +28,37 @@ public class ReservationServiceImpl implements ReservationService {
     private final ReservationMapper reservationMapper;
 
     @Override
-    public ReservationDTO save(ReservationDTO reservationDTO) {
+    public ReservationDTO save(ReservationDTO dto) {
 
-        Reservation reservation = reservationMapper.toEntity(reservationDTO);
+        Flight flight = flightRepository.findById(dto.getFlightId())
+                .orElseThrow(() -> new RuntimeException("Flight not found"));
+
+        if (flight.getAvailableSeats() <= 0) {
+            throw new RuntimeException("No seats available");
+        }
+
+        Passenger passenger = passengerRepository.findById(dto.getPassengerId())
+                .orElseThrow(() -> new RuntimeException("Passenger not found"));
+
+        boolean seatTaken = reservationRepository
+                .existsByFlightIdAndSeatNumber(dto.getFlightId(), dto.getSeatNumber());
+
+        if (seatTaken) {
+            throw new RuntimeException("Seat already taken");
+        }
+
+        Reservation reservation = new Reservation();
+
+        reservation.setFlight(flight);
+        reservation.setPassenger(passenger);
+        reservation.setSeatNumber(dto.getSeatNumber());
+
+        reservation.setStatus(ReservationStatus.PENDING);
+        reservation.setReservationDate(LocalDateTime.now());
+
+        flight.setAvailableSeats(flight.getAvailableSeats() - 1);
+        flightRepository.save(flight);
+
         Reservation saved = reservationRepository.save(reservation);
 
         return reservationMapper.toDTO(saved);

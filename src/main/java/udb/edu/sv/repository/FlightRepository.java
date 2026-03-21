@@ -9,4 +9,9 @@ public interface FlightRepository extends JpaRepository<Flight, Long> {
 
     List<Flight> findByRouteOriginAndRouteDestination(String origin, String destination);
 
+    List<Flight> findByRouteOriginIgnoreCaseAndRouteDestinationIgnoreCase(
+            String origin,
+            String destination
+    );
+
 }

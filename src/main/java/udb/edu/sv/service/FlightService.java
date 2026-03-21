@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface FlightService {
 
-    FlightDTO save(FlightDTO flightDTO);
+    FlightDTO save(FlightDTO dto);
 
     List<FlightDTO> findAll();
 
@@ -16,5 +16,4 @@ public interface FlightService {
     void deleteById(Long id);
 
     List<FlightDTO> searchFlights(String origin, String destination);
-
 }
