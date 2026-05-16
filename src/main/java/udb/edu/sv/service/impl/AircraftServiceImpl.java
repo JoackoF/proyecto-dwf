@@ -6,6 +6,7 @@ import udb.edu.sv.dto.AircraftRequestDTO;
 import udb.edu.sv.dto.AircraftResponseDTO;
 import udb.edu.sv.entity.Aircraft;
 import udb.edu.sv.entity.Airline;
+import udb.edu.sv.exception.ResourceNotFoundException;
 import udb.edu.sv.mapper.AircraftMapper;
 import udb.edu.sv.repository.AircraftRepository;
 import udb.edu.sv.repository.AirlineRepository;
@@ -26,11 +27,9 @@ public class AircraftServiceImpl implements AircraftService {
     public AircraftResponseDTO save(AircraftRequestDTO dto) {
         Aircraft aircraft = aircraftMapper.toEntity(dto);
 
-        if (dto.getAirlineId() != null) {
-            Airline airline = airlineRepository.findById(dto.getAirlineId())
-                    .orElseThrow(() -> new RuntimeException("Airline not found"));
-            aircraft.setAirline(airline);
-        }
+        Airline airline = airlineRepository.findById(dto.getAirlineId())
+                .orElseThrow(() -> new ResourceNotFoundException("Airline", dto.getAirlineId()));
+        aircraft.setAirline(airline);
 
         Aircraft saved = aircraftRepository.save(aircraft);
         return aircraftMapper.toResponseDTO(saved);
@@ -52,6 +51,9 @@ public class AircraftServiceImpl implements AircraftService {
 
     @Override
     public void deleteById(Long id) {
+        if (!aircraftRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Aircraft", id);
+        }
         aircraftRepository.deleteById(id);
     }
 }

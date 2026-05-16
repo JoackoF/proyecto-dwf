@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import udb.edu.sv.dto.AirlineRequestDTO;
 import udb.edu.sv.dto.AirlineResponseDTO;
 import udb.edu.sv.entity.Airline;
+import udb.edu.sv.exception.ResourceNotFoundException;
 import udb.edu.sv.mapper.AirlineMapper;
 import udb.edu.sv.repository.AirlineRepository;
 import udb.edu.sv.service.AirlineService;
@@ -42,6 +43,9 @@ public class AirlineServiceImpl implements AirlineService {
 
     @Override
     public void deleteById(Long id) {
+        if (!airlineRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Airline", id);
+        }
         airlineRepository.deleteById(id);
     }
 }

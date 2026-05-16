@@ -1,5 +1,6 @@
 package udb.edu.sv.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ public class RouteController {
     private final RouteService routeService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<RouteResponseDTO>> create(@RequestBody RouteRequestDTO routeDTO) {
+    public ResponseEntity<ApiResponse<RouteResponseDTO>> create(@Valid @RequestBody RouteRequestDTO routeDTO) {
         RouteResponseDTO savedRoute = routeService.save(routeDTO);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ResponseBuilder.success(savedRoute, "Route created successfully"));

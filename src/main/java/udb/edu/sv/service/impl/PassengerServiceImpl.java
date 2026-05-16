@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import udb.edu.sv.dto.PassengerRequestDTO;
 import udb.edu.sv.dto.PassengerResponseDTO;
 import udb.edu.sv.entity.Passenger;
+import udb.edu.sv.exception.DuplicateResourceException;
+import udb.edu.sv.exception.ResourceNotFoundException;
 import udb.edu.sv.mapper.PassengerMapper;
 import udb.edu.sv.repository.PassengerRepository;
 import udb.edu.sv.service.PassengerService;
@@ -21,6 +23,12 @@ public class PassengerServiceImpl implements PassengerService {
 
     @Override
     public PassengerResponseDTO save(PassengerRequestDTO passengerDTO) {
+        passengerRepository.findByPassportNumber(passengerDTO.getPassportNumber())
+                .ifPresent(existing -> {
+                    throw new DuplicateResourceException(
+                            "Ya existe un pasajero con el pasaporte: " + passengerDTO.getPassportNumber());
+                });
+
         Passenger passenger = passengerMapper.toEntity(passengerDTO);
         Passenger saved = passengerRepository.save(passenger);
         return passengerMapper.toResponseDTO(saved);
@@ -42,6 +50,9 @@ public class PassengerServiceImpl implements PassengerService {
 
     @Override
     public void deleteById(Long id) {
+        if (!passengerRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Passenger", id);
+        }
         passengerRepository.deleteById(id);
     }
 }
