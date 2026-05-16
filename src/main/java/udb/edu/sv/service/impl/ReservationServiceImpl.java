@@ -4,11 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import udb.edu.sv.dto.BookingRequestDTO;
-import udb.edu.sv.dto.ReservationDTO;
+import udb.edu.sv.dto.ReservationRequestDTO;
+import udb.edu.sv.dto.ReservationResponseDTO;
 import udb.edu.sv.entity.*;
 import udb.edu.sv.entity.enums.ReservationStatus;
 import udb.edu.sv.mapper.ReservationMapper;
 import udb.edu.sv.repository.*;
+import udb.edu.sv.service.BookingService;
 import udb.edu.sv.service.ReservationService;
 
 import java.time.LocalDateTime;
@@ -22,12 +24,13 @@ public class ReservationServiceImpl implements ReservationService {
     private final ReservationRepository reservationRepository;
     private final FlightRepository flightRepository;
     private final PassengerRepository passengerRepository;
-    private final PaymentRepository paymentRepository;
-
+    private final UserRepository userRepository;
     private final ReservationMapper reservationMapper;
+    private final BookingService bookingService;
 
     @Override
-    public ReservationDTO save(ReservationDTO dto) {
+    @Transactional
+    public ReservationResponseDTO save(ReservationRequestDTO dto) {
 
         Flight flight = flightRepository.findById(dto.getFlightId())
                 .orElseThrow(() -> new RuntimeException("Flight not found"));
@@ -47,90 +50,46 @@ public class ReservationServiceImpl implements ReservationService {
         }
 
         Reservation reservation = new Reservation();
-
         reservation.setFlight(flight);
         reservation.setPassenger(passenger);
         reservation.setSeatNumber(dto.getSeatNumber());
-
         reservation.setStatus(ReservationStatus.PENDING);
         reservation.setReservationDate(LocalDateTime.now());
+
+        if (dto.getUserId() != null) {
+            User user = userRepository.findById(dto.getUserId())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            reservation.setUser(user);
+        }
 
         flight.setAvailableSeats(flight.getAvailableSeats() - 1);
         flightRepository.save(flight);
 
         Reservation saved = reservationRepository.save(reservation);
-
-        return reservationMapper.toDTO(saved);
+        return reservationMapper.toResponseDTO(saved);
     }
 
     @Override
-    public List<ReservationDTO> findAll() {
-
+    public List<ReservationResponseDTO> findAll() {
         return reservationRepository.findAll()
                 .stream()
-                .map(reservationMapper::toDTO)
+                .map(reservationMapper::toResponseDTO)
                 .toList();
     }
 
     @Override
-    public Optional<ReservationDTO> findById(Long id) {
-
+    public Optional<ReservationResponseDTO> findById(Long id) {
         return reservationRepository.findById(id)
-                .map(reservationMapper::toDTO);
+                .map(reservationMapper::toResponseDTO);
     }
 
     @Override
     public void deleteById(Long id) {
-
         reservationRepository.deleteById(id);
     }
 
     @Override
-    @Transactional
     public void bookFlight(BookingRequestDTO request) {
-
-        Flight flight = flightRepository.findById(request.getFlightId())
-                .orElseThrow(() -> new RuntimeException("Flight not found"));
-
-        if (flight.getAvailableSeats() <= 0) {
-            throw new RuntimeException("No seats available");
-        }
-
-        boolean seatTaken = reservationRepository
-                .existsByFlightIdAndSeatNumber(request.getFlightId(), request.getSeatNumber());
-
-        if (seatTaken) {
-            throw new RuntimeException("Seat already taken");
-        }
-
-        Passenger passenger = Passenger.builder()
-                .fullName(request.getPassenger().getFullName())
-                .passportNumber(request.getPassenger().getPassportNumber())
-                .birthDate(request.getPassenger().getBirthDate())
-                .build();
-
-        passengerRepository.save(passenger);
-
-        Reservation reservation = Reservation.builder()
-                .flight(flight)
-                .passenger(passenger)
-                .seatNumber(request.getSeatNumber())
-                .reservationDate(LocalDateTime.now())
-                .status(ReservationStatus.CONFIRMED)
-                .build();
-
-        reservationRepository.save(reservation);
-
-        Payment payment = Payment.builder()
-                .reservation(reservation)
-                .amount(flight.getPrice())
-                .paymentType(request.getPaymentType())
-                .paymentDate(LocalDateTime.now())
-                .build();
-
-        paymentRepository.save(payment);
-
-        flight.setAvailableSeats(flight.getAvailableSeats() - 1);
-        flightRepository.save(flight);
+        bookingService.bookFlight(request);
     }
 }

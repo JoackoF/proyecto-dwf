@@ -5,7 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import udb.edu.sv.dto.ApiResponse;
-import udb.edu.sv.dto.RouteDTO;
+import udb.edu.sv.dto.RouteRequestDTO;
+import udb.edu.sv.dto.RouteResponseDTO;
 import udb.edu.sv.service.RouteService;
 import udb.edu.sv.util.ResponseBuilder;
 
@@ -19,22 +20,22 @@ public class RouteController {
     private final RouteService routeService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<RouteDTO>> create(@RequestBody RouteDTO routeDTO) {
-        RouteDTO savedRoute = routeService.save(routeDTO);
+    public ResponseEntity<ApiResponse<RouteResponseDTO>> create(@RequestBody RouteRequestDTO routeDTO) {
+        RouteResponseDTO savedRoute = routeService.save(routeDTO);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ResponseBuilder.success(savedRoute, "Route created successfully"));
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<RouteDTO>>> getAll() {
-        List<RouteDTO> routes = routeService.findAll();
+    public ResponseEntity<ApiResponse<List<RouteResponseDTO>>> getAll() {
+        List<RouteResponseDTO> routes = routeService.findAll();
         return ResponseEntity.ok(
                 ResponseBuilder.success(routes, "Route list retrieved successfully")
         );
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<RouteDTO>> getById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<RouteResponseDTO>> getById(@PathVariable Long id) {
         return routeService.findById(id)
                 .map(dto -> ResponseEntity.ok(ResponseBuilder.success(dto, "Route retrieved successfully by ID: " + id)))
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)

@@ -5,7 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import udb.edu.sv.dto.ApiResponse;
-import udb.edu.sv.dto.PassengerDTO;
+import udb.edu.sv.dto.PassengerRequestDTO;
+import udb.edu.sv.dto.PassengerResponseDTO;
 import udb.edu.sv.service.PassengerService;
 import udb.edu.sv.util.ResponseBuilder;
 
@@ -19,24 +20,24 @@ public class PassengerController {
     private final PassengerService passengerService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<PassengerDTO>> create(@RequestBody PassengerDTO passengerDTO) {
-        PassengerDTO savedPassenger = passengerService.save(passengerDTO);
+    public ResponseEntity<ApiResponse<PassengerResponseDTO>> create(@RequestBody PassengerRequestDTO passengerDTO) {
+        PassengerResponseDTO savedPassenger = passengerService.save(passengerDTO);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ResponseBuilder.success(savedPassenger, "Passenger registered successfully"));
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<PassengerDTO>>> getAll() {
-        List<PassengerDTO> passengers = passengerService.findAll();
+    public ResponseEntity<ApiResponse<List<PassengerResponseDTO>>> getAll() {
+        List<PassengerResponseDTO> passengers = passengerService.findAll();
         return ResponseEntity.ok(
                 ResponseBuilder.success(passengers, "Passenger list retrieved successfully")
         );
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<PassengerDTO>> getById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<PassengerResponseDTO>> getById(@PathVariable Long id) {
         return passengerService.findById(id)
-                .map(dto -> ResponseEntity.ok(ResponseBuilder.success(dto, "Passenger retrieved successfully by ID" + id)))
+                .map(dto -> ResponseEntity.ok(ResponseBuilder.success(dto, "Passenger retrieved successfully by ID: " + id)))
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(ResponseBuilder.error("Passenger not found with ID: " + id)));
     }

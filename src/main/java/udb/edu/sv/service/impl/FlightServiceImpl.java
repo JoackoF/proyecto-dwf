@@ -2,7 +2,8 @@ package udb.edu.sv.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import udb.edu.sv.dto.FlightDTO;
+import udb.edu.sv.dto.FlightRequestDTO;
+import udb.edu.sv.dto.FlightResponseDTO;
 import udb.edu.sv.entity.*;
 import udb.edu.sv.mapper.FlightMapper;
 import udb.edu.sv.repository.*;
@@ -22,8 +23,7 @@ public class FlightServiceImpl implements FlightService {
     private final FlightMapper flightMapper;
 
     @Override
-    public FlightDTO save(FlightDTO dto) {
-
+    public FlightResponseDTO save(FlightRequestDTO dto) {
         Flight flight = flightMapper.toEntity(dto);
 
         if (dto.getAirlineId() != null) {
@@ -45,22 +45,21 @@ public class FlightServiceImpl implements FlightService {
         }
 
         Flight saved = flightRepository.save(flight);
-
-        return flightMapper.toDTO(saved);
+        return flightMapper.toResponseDTO(saved);
     }
 
     @Override
-    public List<FlightDTO> findAll() {
+    public List<FlightResponseDTO> findAll() {
         return flightRepository.findAll()
                 .stream()
-                .map(flightMapper::toDTO)
+                .map(flightMapper::toResponseDTO)
                 .toList();
     }
 
     @Override
-    public Optional<FlightDTO> findById(Long id) {
+    public Optional<FlightResponseDTO> findById(Long id) {
         return flightRepository.findById(id)
-                .map(flightMapper::toDTO);
+                .map(flightMapper::toResponseDTO);
     }
 
     @Override
@@ -69,11 +68,11 @@ public class FlightServiceImpl implements FlightService {
     }
 
     @Override
-    public List<FlightDTO> searchFlights(String origin, String destination) {
+    public List<FlightResponseDTO> searchFlights(String origin, String destination) {
         return flightRepository
                 .findByRouteOriginIgnoreCaseAndRouteDestinationIgnoreCase(origin, destination)
                 .stream()
-                .map(flightMapper::toDTO)
+                .map(flightMapper::toResponseDTO)
                 .toList();
     }
 }

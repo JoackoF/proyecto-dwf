@@ -1,17 +1,18 @@
 package udb.edu.sv.service;
 
-import udb.edu.sv.dto.RouteDTO;
+import udb.edu.sv.dto.RouteRequestDTO;
+import udb.edu.sv.dto.RouteResponseDTO;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface RouteService {
 
-    RouteDTO save(RouteDTO routeDTO);
+    RouteResponseDTO save(RouteRequestDTO routeDTO);
 
-    List<RouteDTO> findAll();
+    List<RouteResponseDTO> findAll();
 
-    Optional<RouteDTO> findById(Long id);
+    Optional<RouteResponseDTO> findById(Long id);
 
     void deleteById(Long id);
 }

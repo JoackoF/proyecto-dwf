@@ -6,7 +6,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import udb.edu.sv.dto.ReservationDTO;
+import udb.edu.sv.dto.ReservationRequestDTO;
+import udb.edu.sv.dto.ReservationResponseDTO;
 import udb.edu.sv.entity.*;
 import udb.edu.sv.repository.*;
 import udb.edu.sv.service.ReservationService;
@@ -14,6 +15,7 @@ import udb.edu.sv.service.ReservationService;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -31,8 +33,10 @@ public class ReservationServiceTest {
     @DisplayName("Debe crear reservation correctamente")
     void shouldCreateReservation() {
 
+        String uniqueCode = "T-" + UUID.randomUUID().toString().substring(0, 8);
+
         Airline airline = airlineRepository.save(
-                Airline.builder().name("Test").code("T1").build()
+                Airline.builder().name("Test").code(uniqueCode).build()
         );
 
         Aircraft aircraft = aircraftRepository.save(
@@ -59,17 +63,17 @@ public class ReservationServiceTest {
                 Passenger.builder()
                         .fullName("Tester")
                         .birthDate(LocalDate.of(2000,1,1))
-                        .passportNumber("XYZ123")
+                        .passportNumber("P-" + UUID.randomUUID().toString().substring(0, 8))
                         .build()
         );
 
-        ReservationDTO dto = ReservationDTO.builder()
+        ReservationRequestDTO dto = ReservationRequestDTO.builder()
                 .flightId(flight.getId())
                 .passengerId(passenger.getId())
                 .seatNumber("5A")
                 .build();
 
-        ReservationDTO result = reservationService.save(dto);
+        ReservationResponseDTO result = reservationService.save(dto);
 
         assertThat(result.getId()).isNotNull();
         assertThat(result.getSeatNumber()).isEqualTo("5A");
@@ -79,7 +83,7 @@ public class ReservationServiceTest {
     @DisplayName("Debe fallar si el flight no existe")
     void shouldFailIfFlightNotFound() {
 
-        ReservationDTO dto = ReservationDTO.builder()
+        ReservationRequestDTO dto = ReservationRequestDTO.builder()
                 .flightId(999L)
                 .passengerId(1L)
                 .seatNumber("1A")

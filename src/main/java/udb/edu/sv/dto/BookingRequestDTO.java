@@ -9,6 +9,5 @@ public class BookingRequestDTO {
     private Long flightId;
     private String seatNumber;
     private PaymentType paymentType;
-    private PassengerDTO passenger;
-
+    private PassengerRequestDTO passenger;
 }

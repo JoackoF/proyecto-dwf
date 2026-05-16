@@ -9,13 +9,10 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PassengerDTO {
+public class PassengerResponseDTO {
 
     private Long id;
-
     private String fullName;
-
     private LocalDate birthDate;
-
     private String passportNumber;
 }

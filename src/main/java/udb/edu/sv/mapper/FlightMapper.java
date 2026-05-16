@@ -1,16 +1,17 @@
 package udb.edu.sv.mapper;
 
 import org.springframework.stereotype.Component;
-import udb.edu.sv.dto.FlightDTO;
+import udb.edu.sv.dto.FlightRequestDTO;
+import udb.edu.sv.dto.FlightResponseDTO;
 import udb.edu.sv.entity.Flight;
 
 @Component
 public class FlightMapper {
 
-    public FlightDTO toDTO(Flight flight) {
+    public FlightResponseDTO toResponseDTO(Flight flight) {
         if (flight == null) return null;
 
-        return FlightDTO.builder()
+        return FlightResponseDTO.builder()
                 .id(flight.getId())
                 .airlineId(flight.getAirline() != null ? flight.getAirline().getId() : null)
                 .aircraftId(flight.getAircraft() != null ? flight.getAircraft().getId() : null)
@@ -22,11 +23,10 @@ public class FlightMapper {
                 .build();
     }
 
-    public Flight toEntity(FlightDTO dto) {
+    public Flight toEntity(FlightRequestDTO dto) {
         if (dto == null) return null;
 
         return Flight.builder()
-                .id(dto.getId())
                 .departureDate(dto.getDepartureDate())
                 .departureTime(dto.getDepartureTime())
                 .price(dto.getPrice())

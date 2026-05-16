@@ -1,17 +1,18 @@
 package udb.edu.sv.service;
 
-import udb.edu.sv.dto.AirlineDTO;
+import udb.edu.sv.dto.AirlineRequestDTO;
+import udb.edu.sv.dto.AirlineResponseDTO;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface AirlineService {
 
-    AirlineDTO save(AirlineDTO airlineDTO);
+    AirlineResponseDTO save(AirlineRequestDTO airlineDTO);
 
-    List<AirlineDTO> findAll();
+    List<AirlineResponseDTO> findAll();
 
-    Optional<AirlineDTO> findById(Long id);
+    Optional<AirlineResponseDTO> findById(Long id);
 
     void deleteById(Long id);
 }

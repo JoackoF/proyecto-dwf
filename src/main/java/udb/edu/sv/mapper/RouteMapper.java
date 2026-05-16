@@ -1,13 +1,16 @@
 package udb.edu.sv.mapper;
 
 import org.mapstruct.Mapper;
-import udb.edu.sv.dto.RouteDTO;
+import org.mapstruct.Mapping;
+import udb.edu.sv.dto.RouteRequestDTO;
+import udb.edu.sv.dto.RouteResponseDTO;
 import udb.edu.sv.entity.Route;
 
 @Mapper(componentModel = "spring")
 public interface RouteMapper {
 
-    RouteDTO toDTO(Route route);
+    RouteResponseDTO toResponseDTO(Route route);
 
-    Route toEntity(RouteDTO dto);
+    @Mapping(target = "id", ignore = true)
+    Route toEntity(RouteRequestDTO dto);
 }

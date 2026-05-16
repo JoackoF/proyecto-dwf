@@ -5,7 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import udb.edu.sv.dto.AirlineDTO;
+import udb.edu.sv.dto.AirlineRequestDTO;
+import udb.edu.sv.dto.AirlineResponseDTO;
 import udb.edu.sv.entity.Airline;
 import udb.edu.sv.mapper.AirlineMapper;
 import udb.edu.sv.repository.AirlineRepository;
@@ -29,7 +30,8 @@ public class AirlineServiceTest {
     private AirlineServiceImpl airlineService;
 
     private Airline airline;
-    private AirlineDTO airlineDTO;
+    private AirlineRequestDTO airlineRequest;
+    private AirlineResponseDTO airlineResponse;
 
     @BeforeEach
     void setUp() {
@@ -42,7 +44,12 @@ public class AirlineServiceTest {
                 .code("AV")
                 .build();
 
-        airlineDTO = AirlineDTO.builder()
+        airlineRequest = AirlineRequestDTO.builder()
+                .name("Avianca")
+                .code("AV")
+                .build();
+
+        airlineResponse = AirlineResponseDTO.builder()
                 .id(1L)
                 .name("Avianca")
                 .code("AV")
@@ -52,11 +59,11 @@ public class AirlineServiceTest {
     @Test
     void testSaveAirline() {
 
-        when(airlineMapper.toEntity(any(AirlineDTO.class))).thenReturn(airline);
+        when(airlineMapper.toEntity(any(AirlineRequestDTO.class))).thenReturn(airline);
         when(airlineRepository.save(any(Airline.class))).thenReturn(airline);
-        when(airlineMapper.toDTO(any(Airline.class))).thenReturn(airlineDTO);
+        when(airlineMapper.toResponseDTO(any(Airline.class))).thenReturn(airlineResponse);
 
-        AirlineDTO saved = airlineService.save(airlineDTO);
+        AirlineResponseDTO saved = airlineService.save(airlineRequest);
 
         assertNotNull(saved);
         assertEquals("Avianca", saved.getName());
@@ -68,9 +75,9 @@ public class AirlineServiceTest {
     void testFindAllAirlines() {
 
         when(airlineRepository.findAll()).thenReturn(List.of(airline));
-        when(airlineMapper.toDTO(any(Airline.class))).thenReturn(airlineDTO);
+        when(airlineMapper.toResponseDTO(any(Airline.class))).thenReturn(airlineResponse);
 
-        List<AirlineDTO> airlines = airlineService.findAll();
+        List<AirlineResponseDTO> airlines = airlineService.findAll();
 
         assertFalse(airlines.isEmpty());
         assertEquals(1, airlines.size());
@@ -82,9 +89,9 @@ public class AirlineServiceTest {
     void testFindAirlineById() {
 
         when(airlineRepository.findById(1L)).thenReturn(Optional.of(airline));
-        when(airlineMapper.toDTO(any(Airline.class))).thenReturn(airlineDTO);
+        when(airlineMapper.toResponseDTO(any(Airline.class))).thenReturn(airlineResponse);
 
-        Optional<AirlineDTO> found = airlineService.findById(1L);
+        Optional<AirlineResponseDTO> found = airlineService.findById(1L);
 
         assertTrue(found.isPresent());
         assertEquals("Avianca", found.get().getName());
