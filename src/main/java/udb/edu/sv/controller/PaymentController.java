@@ -1,5 +1,6 @@
 package udb.edu.sv.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<PaymentResponseDTO>> create(@RequestBody PaymentRequestDTO paymentDTO) {
+    public ResponseEntity<ApiResponse<PaymentResponseDTO>> create(@Valid @RequestBody PaymentRequestDTO paymentDTO) {
         PaymentResponseDTO savedPayment = paymentService.save(paymentDTO);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ResponseBuilder.success(savedPayment, "Payment processed successfully"));

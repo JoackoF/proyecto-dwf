@@ -6,6 +6,8 @@ import udb.edu.sv.dto.PaymentRequestDTO;
 import udb.edu.sv.dto.PaymentResponseDTO;
 import udb.edu.sv.entity.Payment;
 import udb.edu.sv.entity.Reservation;
+import udb.edu.sv.exception.DuplicateResourceException;
+import udb.edu.sv.exception.ResourceNotFoundException;
 import udb.edu.sv.mapper.PaymentMapper;
 import udb.edu.sv.repository.PaymentRepository;
 import udb.edu.sv.repository.ReservationRepository;
@@ -25,14 +27,16 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public PaymentResponseDTO save(PaymentRequestDTO dto) {
-        Payment payment = paymentMapper.toEntity(dto);
+        Reservation reservation = reservationRepository.findById(dto.getReservationId())
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation", dto.getReservationId()));
 
-        if (dto.getReservationId() != null) {
-            Reservation reservation = reservationRepository.findById(dto.getReservationId())
-                    .orElseThrow(() -> new RuntimeException("Reservation not found"));
-            payment.setReservation(reservation);
+        if (paymentRepository.existsByReservationId(dto.getReservationId())) {
+            throw new DuplicateResourceException(
+                    "Ya existe un pago registrado para la reserva ID: " + dto.getReservationId());
         }
 
+        Payment payment = paymentMapper.toEntity(dto);
+        payment.setReservation(reservation);
         payment.setPaymentDate(LocalDateTime.now());
 
         Payment saved = paymentRepository.save(payment);
@@ -55,6 +59,9 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public void deleteById(Long id) {
+        if (!paymentRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Payment", id);
+        }
         paymentRepository.deleteById(id);
     }
 }

@@ -8,6 +8,7 @@ import udb.edu.sv.dto.ClaimResponseDTO;
 import udb.edu.sv.entity.Claim;
 import udb.edu.sv.entity.Reservation;
 import udb.edu.sv.entity.enums.ClaimStatus;
+import udb.edu.sv.exception.ResourceNotFoundException;
 import udb.edu.sv.mapper.ClaimMapper;
 import udb.edu.sv.repository.ClaimRepository;
 import udb.edu.sv.repository.ReservationRepository;
@@ -28,14 +29,11 @@ public class ClaimServiceImpl implements ClaimService {
     @Override
     @Transactional
     public ClaimResponseDTO save(ClaimRequestDTO dto) {
+        Reservation reservation = reservationRepository.findById(dto.getReservationId())
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation", dto.getReservationId()));
+
         Claim claim = claimMapper.toEntity(dto);
-
-        if (dto.getReservationId() != null) {
-            Reservation reservation = reservationRepository.findById(dto.getReservationId())
-                    .orElseThrow(() -> new RuntimeException("Reservation not found"));
-            claim.setReservation(reservation);
-        }
-
+        claim.setReservation(reservation);
         claim.setStatus(ClaimStatus.PENDING);
         claim.setCreatedAt(LocalDateTime.now());
 
@@ -69,13 +67,16 @@ public class ClaimServiceImpl implements ClaimService {
     @Transactional
     public ClaimResponseDTO resolve(Long id) {
         Claim claim = claimRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Claim not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Claim", id));
         claim.setStatus(ClaimStatus.RESOLVED);
         return claimMapper.toResponseDTO(claimRepository.save(claim));
     }
 
     @Override
     public void deleteById(Long id) {
+        if (!claimRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Claim", id);
+        }
         claimRepository.deleteById(id);
     }
 }

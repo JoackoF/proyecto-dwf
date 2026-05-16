@@ -1,5 +1,6 @@
 package udb.edu.sv.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ public class ReservationController {
     private final ReservationService reservationService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<ReservationResponseDTO>> create(@RequestBody ReservationRequestDTO reservationDTO) {
+    public ResponseEntity<ApiResponse<ReservationResponseDTO>> create(@Valid @RequestBody ReservationRequestDTO reservationDTO) {
         ReservationResponseDTO savedReservation = reservationService.save(reservationDTO);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ResponseBuilder.success(savedReservation, "Reservation created successfully"));

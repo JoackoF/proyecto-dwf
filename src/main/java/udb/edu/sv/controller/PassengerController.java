@@ -1,5 +1,6 @@
 package udb.edu.sv.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ public class PassengerController {
     private final PassengerService passengerService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<PassengerResponseDTO>> create(@RequestBody PassengerRequestDTO passengerDTO) {
+    public ResponseEntity<ApiResponse<PassengerResponseDTO>> create(@Valid @RequestBody PassengerRequestDTO passengerDTO) {
         PassengerResponseDTO savedPassenger = passengerService.save(passengerDTO);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ResponseBuilder.success(savedPassenger, "Passenger registered successfully"));
