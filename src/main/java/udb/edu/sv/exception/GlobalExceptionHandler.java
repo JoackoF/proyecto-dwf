@@ -47,10 +47,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(errors);
     }
 
-    //para que nos devuelva un mensaje si no existe un usuario que busquemos
+    //para que nos devuelva un mensaje si hay un error en el pago
     @ExceptionHandler(UsuarioNoEncontradoException.class)
     public ResponseEntity<String> handleUsuarioNoEncontrado(UsuarioNoEncontradoException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body("El usuario no se ha encontrado: " + ex.getMessage());
+    }
+
+    @ExceptionHandler(PaymentFailedException.class)
+    public ResponseEntity<String> handlePaymentFailed(PaymentFailedException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Error en el pago: " + ex.getMessage());
     }
 }
