@@ -1,6 +1,7 @@
 package udb.edu.sv.dto;
 
 import lombok.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -10,7 +11,7 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class FlightDTO {
+public class FlightResponseDTO {
 
     private Long id;
     private Long airlineId;

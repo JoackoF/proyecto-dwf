@@ -2,7 +2,8 @@ package udb.edu.sv.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import udb.edu.sv.dto.AirlineDTO;
+import udb.edu.sv.dto.AirlineRequestDTO;
+import udb.edu.sv.dto.AirlineResponseDTO;
 import udb.edu.sv.entity.Airline;
 import udb.edu.sv.mapper.AirlineMapper;
 import udb.edu.sv.repository.AirlineRepository;
@@ -19,33 +20,28 @@ public class AirlineServiceImpl implements AirlineService {
     private final AirlineMapper airlineMapper;
 
     @Override
-    public AirlineDTO save(AirlineDTO airlineDTO) {
-
+    public AirlineResponseDTO save(AirlineRequestDTO airlineDTO) {
         Airline airline = airlineMapper.toEntity(airlineDTO);
         Airline saved = airlineRepository.save(airline);
-
-        return airlineMapper.toDTO(saved);
+        return airlineMapper.toResponseDTO(saved);
     }
 
     @Override
-    public List<AirlineDTO> findAll() {
-
+    public List<AirlineResponseDTO> findAll() {
         return airlineRepository.findAll()
                 .stream()
-                .map(airlineMapper::toDTO)
+                .map(airlineMapper::toResponseDTO)
                 .toList();
     }
 
     @Override
-    public Optional<AirlineDTO> findById(Long id) {
-
+    public Optional<AirlineResponseDTO> findById(Long id) {
         return airlineRepository.findById(id)
-                .map(airlineMapper::toDTO);
+                .map(airlineMapper::toResponseDTO);
     }
 
     @Override
     public void deleteById(Long id) {
-
         airlineRepository.deleteById(id);
     }
 }

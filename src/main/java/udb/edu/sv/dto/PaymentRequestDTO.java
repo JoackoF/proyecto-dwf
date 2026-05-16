@@ -1,20 +1,18 @@
 package udb.edu.sv.dto;
 
-import lombok.Data;
+import lombok.*;
 import udb.edu.sv.entity.enums.PaymentType;
 
 import java.math.BigDecimal;
 
-@Data
-public class PaymentDTO {
-
-    private Long id;
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class PaymentRequestDTO {
 
     private Long reservationId;
-
     private BigDecimal amount;
-
     private PaymentType paymentType;
-
-    private String status;
 }

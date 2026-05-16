@@ -1,17 +1,18 @@
 package udb.edu.sv.service;
 
-import udb.edu.sv.dto.PassengerDTO;
+import udb.edu.sv.dto.PassengerRequestDTO;
+import udb.edu.sv.dto.PassengerResponseDTO;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface PassengerService {
 
-    PassengerDTO save(PassengerDTO passengerDTO);
+    PassengerResponseDTO save(PassengerRequestDTO passengerDTO);
 
-    List<PassengerDTO> findAll();
+    List<PassengerResponseDTO> findAll();
 
-    Optional<PassengerDTO> findById(Long id);
+    Optional<PassengerResponseDTO> findById(Long id);
 
     void deleteById(Long id);
 }

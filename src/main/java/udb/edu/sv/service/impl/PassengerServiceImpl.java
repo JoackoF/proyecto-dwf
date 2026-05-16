@@ -2,7 +2,8 @@ package udb.edu.sv.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import udb.edu.sv.dto.PassengerDTO;
+import udb.edu.sv.dto.PassengerRequestDTO;
+import udb.edu.sv.dto.PassengerResponseDTO;
 import udb.edu.sv.entity.Passenger;
 import udb.edu.sv.mapper.PassengerMapper;
 import udb.edu.sv.repository.PassengerRepository;
@@ -19,26 +20,24 @@ public class PassengerServiceImpl implements PassengerService {
     private final PassengerMapper passengerMapper;
 
     @Override
-    public PassengerDTO save(PassengerDTO passengerDTO) {
-
+    public PassengerResponseDTO save(PassengerRequestDTO passengerDTO) {
         Passenger passenger = passengerMapper.toEntity(passengerDTO);
         Passenger saved = passengerRepository.save(passenger);
-
-        return passengerMapper.toDTO(saved);
+        return passengerMapper.toResponseDTO(saved);
     }
 
     @Override
-    public List<PassengerDTO> findAll() {
+    public List<PassengerResponseDTO> findAll() {
         return passengerRepository.findAll()
                 .stream()
-                .map(passengerMapper::toDTO)
+                .map(passengerMapper::toResponseDTO)
                 .toList();
     }
 
     @Override
-    public Optional<PassengerDTO> findById(Long id) {
+    public Optional<PassengerResponseDTO> findById(Long id) {
         return passengerRepository.findById(id)
-                .map(passengerMapper::toDTO);
+                .map(passengerMapper::toResponseDTO);
     }
 
     @Override

@@ -2,7 +2,8 @@ package udb.edu.sv.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import udb.edu.sv.dto.RouteDTO;
+import udb.edu.sv.dto.RouteRequestDTO;
+import udb.edu.sv.dto.RouteResponseDTO;
 import udb.edu.sv.entity.Route;
 import udb.edu.sv.mapper.RouteMapper;
 import udb.edu.sv.repository.RouteRepository;
@@ -19,26 +20,24 @@ public class RouteServiceImpl implements RouteService {
     private final RouteMapper routeMapper;
 
     @Override
-    public RouteDTO save(RouteDTO routeDTO) {
-
+    public RouteResponseDTO save(RouteRequestDTO routeDTO) {
         Route route = routeMapper.toEntity(routeDTO);
         Route saved = routeRepository.save(route);
-
-        return routeMapper.toDTO(saved);
+        return routeMapper.toResponseDTO(saved);
     }
 
     @Override
-    public List<RouteDTO> findAll() {
+    public List<RouteResponseDTO> findAll() {
         return routeRepository.findAll()
                 .stream()
-                .map(routeMapper::toDTO)
+                .map(routeMapper::toResponseDTO)
                 .toList();
     }
 
     @Override
-    public Optional<RouteDTO> findById(Long id) {
+    public Optional<RouteResponseDTO> findById(Long id) {
         return routeRepository.findById(id)
-                .map(routeMapper::toDTO);
+                .map(routeMapper::toResponseDTO);
     }
 
     @Override

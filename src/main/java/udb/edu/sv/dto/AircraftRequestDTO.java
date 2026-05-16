@@ -7,9 +7,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AircraftDTO {
+public class AircraftRequestDTO {
 
-    private Long id;
     private String model;
     private Integer capacity;
     private Long airlineId;

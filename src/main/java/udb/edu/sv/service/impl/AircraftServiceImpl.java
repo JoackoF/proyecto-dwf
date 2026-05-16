@@ -2,7 +2,8 @@ package udb.edu.sv.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import udb.edu.sv.dto.AircraftDTO;
+import udb.edu.sv.dto.AircraftRequestDTO;
+import udb.edu.sv.dto.AircraftResponseDTO;
 import udb.edu.sv.entity.Aircraft;
 import udb.edu.sv.entity.Airline;
 import udb.edu.sv.mapper.AircraftMapper;
@@ -22,35 +23,31 @@ public class AircraftServiceImpl implements AircraftService {
     private final AircraftMapper aircraftMapper;
 
     @Override
-    public AircraftDTO save(AircraftDTO aircraftDTO) {
+    public AircraftResponseDTO save(AircraftRequestDTO dto) {
+        Aircraft aircraft = aircraftMapper.toEntity(dto);
 
-        Aircraft aircraft = aircraftMapper.toEntity(aircraftDTO);
-
-        if (aircraftDTO.getAirlineId() != null) {
-            Airline airline = airlineRepository.findById(aircraftDTO.getAirlineId())
+        if (dto.getAirlineId() != null) {
+            Airline airline = airlineRepository.findById(dto.getAirlineId())
                     .orElseThrow(() -> new RuntimeException("Airline not found"));
-
             aircraft.setAirline(airline);
         }
 
         Aircraft saved = aircraftRepository.save(aircraft);
-
-        return aircraftMapper.toDTO(saved);
+        return aircraftMapper.toResponseDTO(saved);
     }
 
     @Override
-    public List<AircraftDTO> findAll() {
+    public List<AircraftResponseDTO> findAll() {
         return aircraftRepository.findAll()
                 .stream()
-                .peek(a -> System.out.println("AIRLINE ENTITY: " + a.getAirline()))
-                .map(aircraftMapper::toDTO)
+                .map(aircraftMapper::toResponseDTO)
                 .toList();
     }
 
     @Override
-    public Optional<AircraftDTO> findById(Long id) {
+    public Optional<AircraftResponseDTO> findById(Long id) {
         return aircraftRepository.findById(id)
-                .map(aircraftMapper::toDTO);
+                .map(aircraftMapper::toResponseDTO);
     }
 
     @Override

@@ -1,17 +1,18 @@
 package udb.edu.sv.service;
 
-import udb.edu.sv.dto.PaymentDTO;
+import udb.edu.sv.dto.PaymentRequestDTO;
+import udb.edu.sv.dto.PaymentResponseDTO;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface PaymentService {
 
-    PaymentDTO save(PaymentDTO paymentDTO);
+    PaymentResponseDTO save(PaymentRequestDTO paymentDTO);
 
-    List<PaymentDTO> findAll();
+    List<PaymentResponseDTO> findAll();
 
-    Optional<PaymentDTO> findById(Long id);
+    Optional<PaymentResponseDTO> findById(Long id);
 
     void deleteById(Long id);
 }

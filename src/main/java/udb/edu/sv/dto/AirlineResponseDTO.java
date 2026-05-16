@@ -7,10 +7,9 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RouteDTO {
+public class AirlineResponseDTO {
 
     private Long id;
-    private String origin;
-    private String destination;
-    private Integer durationMinutes;
+    private String name;
+    private String code;
 }

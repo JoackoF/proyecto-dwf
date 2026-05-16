@@ -1,13 +1,16 @@
 package udb.edu.sv.mapper;
 
 import org.mapstruct.Mapper;
-import udb.edu.sv.dto.PassengerDTO;
+import org.mapstruct.Mapping;
+import udb.edu.sv.dto.PassengerRequestDTO;
+import udb.edu.sv.dto.PassengerResponseDTO;
 import udb.edu.sv.entity.Passenger;
 
 @Mapper(componentModel = "spring")
 public interface PassengerMapper {
 
-    PassengerDTO toDTO(Passenger passenger);
+    PassengerResponseDTO toResponseDTO(Passenger passenger);
 
-    Passenger toEntity(PassengerDTO dto);
+    @Mapping(target = "id", ignore = true)
+    Passenger toEntity(PassengerRequestDTO dto);
 }

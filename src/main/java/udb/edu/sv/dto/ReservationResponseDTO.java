@@ -10,19 +10,13 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ReservationDTO {
+public class ReservationResponseDTO {
 
     private Long id;
-
     private Long flightId;
-
     private Long passengerId;
-
     private Long userId;
-
     private String seatNumber;
-
     private ReservationStatus status;
-
     private LocalDateTime reservationDate;
 }

@@ -1,21 +1,21 @@
 package udb.edu.sv.service;
 
 import udb.edu.sv.dto.BookingRequestDTO;
-import udb.edu.sv.dto.ReservationDTO;
+import udb.edu.sv.dto.ReservationRequestDTO;
+import udb.edu.sv.dto.ReservationResponseDTO;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface ReservationService {
 
-    ReservationDTO save(ReservationDTO reservationDTO);
+    ReservationResponseDTO save(ReservationRequestDTO reservationDTO);
 
-    List<ReservationDTO> findAll();
+    List<ReservationResponseDTO> findAll();
 
-    Optional<ReservationDTO> findById(Long id);
+    Optional<ReservationResponseDTO> findById(Long id);
 
     void deleteById(Long id);
 
     void bookFlight(BookingRequestDTO request);
-
 }
