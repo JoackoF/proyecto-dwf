@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import udb.edu.sv.dto.FlightRequestDTO;
 import udb.edu.sv.dto.FlightResponseDTO;
 import udb.edu.sv.entity.*;
+import udb.edu.sv.exception.ResourceNotFoundException;
 import udb.edu.sv.mapper.FlightMapper;
 import udb.edu.sv.repository.*;
 import udb.edu.sv.service.FlightService;
@@ -26,23 +27,17 @@ public class FlightServiceImpl implements FlightService {
     public FlightResponseDTO save(FlightRequestDTO dto) {
         Flight flight = flightMapper.toEntity(dto);
 
-        if (dto.getAirlineId() != null) {
-            Airline airline = airlineRepository.findById(dto.getAirlineId())
-                    .orElseThrow(() -> new RuntimeException("Airline not found"));
-            flight.setAirline(airline);
-        }
+        Airline airline = airlineRepository.findById(dto.getAirlineId())
+                .orElseThrow(() -> new ResourceNotFoundException("Airline", dto.getAirlineId()));
+        flight.setAirline(airline);
 
-        if (dto.getAircraftId() != null) {
-            Aircraft aircraft = aircraftRepository.findById(dto.getAircraftId())
-                    .orElseThrow(() -> new RuntimeException("Aircraft not found"));
-            flight.setAircraft(aircraft);
-        }
+        Aircraft aircraft = aircraftRepository.findById(dto.getAircraftId())
+                .orElseThrow(() -> new ResourceNotFoundException("Aircraft", dto.getAircraftId()));
+        flight.setAircraft(aircraft);
 
-        if (dto.getRouteId() != null) {
-            Route route = routeRepository.findById(dto.getRouteId())
-                    .orElseThrow(() -> new RuntimeException("Route not found"));
-            flight.setRoute(route);
-        }
+        Route route = routeRepository.findById(dto.getRouteId())
+                .orElseThrow(() -> new ResourceNotFoundException("Route", dto.getRouteId()));
+        flight.setRoute(route);
 
         Flight saved = flightRepository.save(flight);
         return flightMapper.toResponseDTO(saved);
@@ -64,6 +59,9 @@ public class FlightServiceImpl implements FlightService {
 
     @Override
     public void deleteById(Long id) {
+        if (!flightRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Flight", id);
+        }
         flightRepository.deleteById(id);
     }
 

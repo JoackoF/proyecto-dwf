@@ -1,5 +1,6 @@
 package udb.edu.sv.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ public class BookingController {
     private final BookingService bookingService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Void>> bookFlight(@RequestBody BookingRequestDTO request) {
+    public ResponseEntity<ApiResponse<Void>> bookFlight(@Valid @RequestBody BookingRequestDTO request) {
         bookingService.bookFlight(request);
 
         return ResponseEntity.status(HttpStatus.CREATED)

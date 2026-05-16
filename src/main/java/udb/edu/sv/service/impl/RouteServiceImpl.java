@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import udb.edu.sv.dto.RouteRequestDTO;
 import udb.edu.sv.dto.RouteResponseDTO;
 import udb.edu.sv.entity.Route;
+import udb.edu.sv.exception.ResourceNotFoundException;
 import udb.edu.sv.mapper.RouteMapper;
 import udb.edu.sv.repository.RouteRepository;
 import udb.edu.sv.service.RouteService;
@@ -42,6 +43,9 @@ public class RouteServiceImpl implements RouteService {
 
     @Override
     public void deleteById(Long id) {
+        if (!routeRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Route", id);
+        }
         routeRepository.deleteById(id);
     }
 }

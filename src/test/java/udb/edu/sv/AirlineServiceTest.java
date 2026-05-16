@@ -102,6 +102,7 @@ public class AirlineServiceTest {
     @Test
     void testDeleteAirline() {
 
+        when(airlineRepository.existsById(1L)).thenReturn(true);
         doNothing().when(airlineRepository).deleteById(1L);
 
         airlineService.deleteById(1L);

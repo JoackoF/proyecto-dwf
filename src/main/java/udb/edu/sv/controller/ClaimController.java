@@ -1,5 +1,6 @@
 package udb.edu.sv.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ public class ClaimController {
     private final ClaimService claimService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<ClaimResponseDTO>> create(@RequestBody ClaimRequestDTO claimDTO) {
+    public ResponseEntity<ApiResponse<ClaimResponseDTO>> create(@Valid @RequestBody ClaimRequestDTO claimDTO) {
         ClaimResponseDTO saved = claimService.save(claimDTO);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ResponseBuilder.success(saved, "Claim filed successfully"));

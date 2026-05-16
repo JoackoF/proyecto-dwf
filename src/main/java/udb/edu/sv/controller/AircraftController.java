@@ -1,5 +1,6 @@
 package udb.edu.sv.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +37,7 @@ public class AircraftController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<AircraftResponseDTO>> create(@RequestBody AircraftRequestDTO dto) {
+    public ResponseEntity<ApiResponse<AircraftResponseDTO>> create(@Valid @RequestBody AircraftRequestDTO dto) {
         AircraftResponseDTO savedDto = aircraftService.save(dto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ResponseBuilder.success(savedDto, "Aircraft created successfully"));
