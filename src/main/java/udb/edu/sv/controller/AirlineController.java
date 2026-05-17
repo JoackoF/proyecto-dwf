@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import udb.edu.sv.dto.AirlineRequestDTO;
 import udb.edu.sv.dto.AirlineResponseDTO;
@@ -20,34 +21,46 @@ public class AirlineController {
 
     private final AirlineService airlineService;
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<AirlineResponseDTO>> create(@Valid @RequestBody AirlineRequestDTO airlineDTO) {
-        AirlineResponseDTO savedDto = airlineService.save(airlineDTO);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ResponseBuilder.success(savedDto, "Airline created successfully"));
-    }
-
     @GetMapping
     public ResponseEntity<ApiResponse<List<AirlineResponseDTO>>> getAll() {
-        List<AirlineResponseDTO> list = airlineService.findAll();
         return ResponseEntity.ok(
-                ResponseBuilder.success(list, "Airline list retrieved successfully")
+                ResponseBuilder.success(airlineService.findAll(), "Aerolíneas obtenidas")
         );
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<AirlineResponseDTO>> getById(@PathVariable Long id) {
         return airlineService.findById(id)
-                .map(dto -> ResponseEntity.ok(ResponseBuilder.success(dto, "Airline retrieved successfully by ID: " + id)))
+                .map(dto -> ResponseEntity.ok(ResponseBuilder.success(dto, "Aerolínea obtenida")))
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(ResponseBuilder.error("Airline not found with ID: " + id)));
+                        .body(ResponseBuilder.error("Aerolínea no encontrada con ID: " + id)));
+    }
+
+    @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<AirlineResponseDTO>> create(@Valid @RequestBody AirlineRequestDTO dto) {
+        AirlineResponseDTO saved = airlineService.save(dto);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ResponseBuilder.success(saved, "Aerolínea creada"));
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<AirlineResponseDTO>> update(
+            @PathVariable Long id,
+            @Valid @RequestBody AirlineRequestDTO dto
+    ) {
+        return ResponseEntity.ok(
+                ResponseBuilder.success(airlineService.update(id, dto), "Aerolínea actualizada")
+        );
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         airlineService.deleteById(id);
         return ResponseEntity.ok(
-                ResponseBuilder.success(null, "Airline deleted successfully by ID: " + id)
+                ResponseBuilder.success(null, "Aerolínea eliminada con ID: " + id)
         );
     }
 }

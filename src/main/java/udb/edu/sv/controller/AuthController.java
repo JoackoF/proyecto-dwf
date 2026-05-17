@@ -2,10 +2,12 @@ package udb.edu.sv.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +24,7 @@ import udb.edu.sv.util.ResponseBuilder;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
@@ -31,16 +34,27 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthResponseDTO>> login(@Valid @RequestBody LoginRequestDTO request) {
 
+        log.info("[auth] login attempt for email={}", request.getEmail());
+
+        boolean userExists = userRepository.findByEmail(request.getEmail()).isPresent();
+        log.info("[auth] user record found in DB? {}", userExists);
+
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
             );
         } catch (BadCredentialsException ex) {
+            log.warn("[auth] BadCredentialsException for email={} -> {}", request.getEmail(), ex.getMessage());
+            throw new BusinessException("Credenciales inválidas");
+        } catch (AuthenticationException ex) {
+            log.warn("[auth] {} for email={} -> {}", ex.getClass().getSimpleName(), request.getEmail(), ex.getMessage());
             throw new BusinessException("Credenciales inválidas");
         }
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new BusinessException("Credenciales inválidas"));
+
+        log.info("[auth] login success for userId={} role={}", user.getId(), user.getRole());
 
         String token = jwtUtil.generateToken(
                 user.getEmail(),

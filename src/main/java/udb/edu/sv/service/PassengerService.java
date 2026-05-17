@@ -10,6 +10,8 @@ public interface PassengerService {
 
     PassengerResponseDTO save(PassengerRequestDTO passengerDTO);
 
+    PassengerResponseDTO update(Long id, PassengerRequestDTO passengerDTO);
+
     List<PassengerResponseDTO> findAll();
 
     Optional<PassengerResponseDTO> findById(Long id);

@@ -22,16 +22,35 @@ public class PassengerServiceImpl implements PassengerService {
     private final PassengerMapper passengerMapper;
 
     @Override
-    public PassengerResponseDTO save(PassengerRequestDTO passengerDTO) {
-        passengerRepository.findByPassportNumber(passengerDTO.getPassportNumber())
+    public PassengerResponseDTO save(PassengerRequestDTO dto) {
+        passengerRepository.findByPassportNumber(dto.getPassportNumber())
                 .ifPresent(existing -> {
                     throw new DuplicateResourceException(
-                            "Ya existe un pasajero con el pasaporte: " + passengerDTO.getPassportNumber());
+                            "Ya existe un pasajero con el pasaporte: " + dto.getPassportNumber());
                 });
 
-        Passenger passenger = passengerMapper.toEntity(passengerDTO);
-        Passenger saved = passengerRepository.save(passenger);
-        return passengerMapper.toResponseDTO(saved);
+        Passenger passenger = passengerMapper.toEntity(dto);
+        return passengerMapper.toResponseDTO(passengerRepository.save(passenger));
+    }
+
+    @Override
+    public PassengerResponseDTO update(Long id, PassengerRequestDTO dto) {
+        Passenger passenger = passengerRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Passenger", id));
+
+        passengerRepository.findByPassportNumber(dto.getPassportNumber())
+                .ifPresent(existing -> {
+                    if (!existing.getId().equals(id)) {
+                        throw new DuplicateResourceException(
+                                "Otro pasajero ya usa el pasaporte: " + dto.getPassportNumber());
+                    }
+                });
+
+        passenger.setFullName(dto.getFullName());
+        passenger.setBirthDate(dto.getBirthDate());
+        passenger.setPassportNumber(dto.getPassportNumber());
+
+        return passengerMapper.toResponseDTO(passengerRepository.save(passenger));
     }
 
     @Override

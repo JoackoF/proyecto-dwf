@@ -2,6 +2,7 @@ package udb.edu.sv.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import udb.edu.sv.entity.enums.FlightStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -39,4 +40,8 @@ public class Flight {
     private BigDecimal price;
 
     private Integer availableSeats;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", length = 20)
+    private FlightStatus status;
 }

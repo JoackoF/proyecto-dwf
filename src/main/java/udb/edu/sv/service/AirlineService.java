@@ -10,6 +10,8 @@ public interface AirlineService {
 
     AirlineResponseDTO save(AirlineRequestDTO airlineDTO);
 
+    AirlineResponseDTO update(Long id, AirlineRequestDTO airlineDTO);
+
     List<AirlineResponseDTO> findAll();
 
     Optional<AirlineResponseDTO> findById(Long id);

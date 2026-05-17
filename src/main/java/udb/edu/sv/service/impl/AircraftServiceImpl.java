@@ -26,13 +26,23 @@ public class AircraftServiceImpl implements AircraftService {
     @Override
     public AircraftResponseDTO save(AircraftRequestDTO dto) {
         Aircraft aircraft = aircraftMapper.toEntity(dto);
+        aircraft.setAirline(loadAirline(dto.getAirlineId()));
+        return aircraftMapper.toResponseDTO(aircraftRepository.save(aircraft));
+    }
 
-        Airline airline = airlineRepository.findById(dto.getAirlineId())
-                .orElseThrow(() -> new ResourceNotFoundException("Airline", dto.getAirlineId()));
-        aircraft.setAirline(airline);
+    @Override
+    public AircraftResponseDTO update(Long id, AircraftRequestDTO dto) {
+        Aircraft aircraft = aircraftRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Aircraft", id));
+        aircraft.setModel(dto.getModel());
+        aircraft.setCapacity(dto.getCapacity());
+        aircraft.setAirline(loadAirline(dto.getAirlineId()));
+        return aircraftMapper.toResponseDTO(aircraftRepository.save(aircraft));
+    }
 
-        Aircraft saved = aircraftRepository.save(aircraft);
-        return aircraftMapper.toResponseDTO(saved);
+    private Airline loadAirline(Long airlineId) {
+        return airlineRepository.findById(airlineId)
+                .orElseThrow(() -> new ResourceNotFoundException("Airline", airlineId));
     }
 
     @Override

@@ -13,11 +13,11 @@ import lombok.*;
 public class AirlineRequestDTO {
 
     @NotBlank(message = "El nombre de la aerolínea es obligatorio")
-    @Size(max = 100, message = "El nombre no puede exceder 100 caracteres")
+    @Size(min = 2, max = 100, message = "El nombre debe tener entre 2 y 100 caracteres")
     private String name;
 
     @NotBlank(message = "El código IATA es obligatorio")
-    @Size(max = 10, message = "El código no puede exceder 10 caracteres")
-    @Pattern(regexp = "^[A-Z0-9-]+$", message = "El código debe contener solo letras mayúsculas, números o guiones")
+    @Size(min = 2, max = 3, message = "El código IATA debe tener 2 o 3 caracteres")
+    @Pattern(regexp = "^[A-Z0-9]{2,3}$", message = "El código IATA debe ser 2 o 3 caracteres mayúsculos/números (ej: AV, CM, IB)")
     private String code;
 }
