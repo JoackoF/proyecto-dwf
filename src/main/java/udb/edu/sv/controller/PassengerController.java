@@ -22,6 +22,7 @@ public class PassengerController {
     private final PassengerService passengerService;
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     public ResponseEntity<ApiResponse<List<PassengerResponseDTO>>> getAll() {
         return ResponseEntity.ok(
                 ResponseBuilder.success(passengerService.findAll(), "Pasajeros obtenidos")
@@ -29,6 +30,7 @@ public class PassengerController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     public ResponseEntity<ApiResponse<PassengerResponseDTO>> getById(@PathVariable Long id) {
         return passengerService.findById(id)
                 .map(dto -> ResponseEntity.ok(ResponseBuilder.success(dto, "Pasajero obtenido")))
