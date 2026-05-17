@@ -23,8 +23,17 @@ public class RouteServiceImpl implements RouteService {
     @Override
     public RouteResponseDTO save(RouteRequestDTO routeDTO) {
         Route route = routeMapper.toEntity(routeDTO);
-        Route saved = routeRepository.save(route);
-        return routeMapper.toResponseDTO(saved);
+        return routeMapper.toResponseDTO(routeRepository.save(route));
+    }
+
+    @Override
+    public RouteResponseDTO update(Long id, RouteRequestDTO dto) {
+        Route route = routeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Route", id));
+        route.setOrigin(dto.getOrigin());
+        route.setDestination(dto.getDestination());
+        route.setDurationMinutes(dto.getDurationMinutes());
+        return routeMapper.toResponseDTO(routeRepository.save(route));
     }
 
     @Override

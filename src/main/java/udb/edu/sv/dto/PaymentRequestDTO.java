@@ -1,5 +1,6 @@
 package udb.edu.sv.dto;
 
+import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Min;
@@ -21,8 +22,9 @@ public class PaymentRequestDTO {
     private Long reservationId;
 
     @NotNull(message = "El monto es obligatorio")
-    @DecimalMin(value = "0.0", inclusive = false, message = "El monto debe ser mayor que cero")
-    @Digits(integer = 8, fraction = 2, message = "El monto admite máximo 8 enteros y 2 decimales")
+    @DecimalMin(value = "0.01", message = "El monto debe ser mayor que cero")
+    @DecimalMax(value = "99999.99", message = "El monto no puede superar 99,999.99")
+    @Digits(integer = 5, fraction = 2, message = "El monto admite máximo 5 enteros y 2 decimales")
     private BigDecimal amount;
 
     @NotNull(message = "El tipo de pago es obligatorio (CARD, TRANSFER, CASH)")

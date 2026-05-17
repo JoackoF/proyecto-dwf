@@ -8,11 +8,13 @@ import udb.edu.sv.dto.ReservationRequestDTO;
 import udb.edu.sv.dto.ReservationResponseDTO;
 import udb.edu.sv.entity.*;
 import udb.edu.sv.entity.enums.ReservationStatus;
+import udb.edu.sv.entity.enums.UserRole;
 import udb.edu.sv.exception.BusinessException;
 import udb.edu.sv.exception.DuplicateResourceException;
 import udb.edu.sv.exception.ResourceNotFoundException;
 import udb.edu.sv.mapper.ReservationMapper;
 import udb.edu.sv.repository.*;
+import udb.edu.sv.security.CurrentUser;
 import udb.edu.sv.service.BookingService;
 import udb.edu.sv.service.ReservationService;
 
@@ -28,9 +30,9 @@ public class ReservationServiceImpl implements ReservationService {
     private final ReservationRepository reservationRepository;
     private final FlightRepository flightRepository;
     private final PassengerRepository passengerRepository;
-    private final UserRepository userRepository;
     private final ReservationMapper reservationMapper;
     private final BookingService bookingService;
+    private final CurrentUser currentUser;
 
     @Override
     @Transactional
@@ -39,11 +41,16 @@ public class ReservationServiceImpl implements ReservationService {
         Flight flight = flightRepository.findById(dto.getFlightId())
                 .orElseThrow(() -> new ResourceNotFoundException("Flight", dto.getFlightId()));
 
+        if (flight.getStatus() != null && !flight.getStatus().allowsReservations()) {
+            throw new BusinessException(
+                    "El vuelo está en estado " + flight.getStatus() + " y no admite reservas");
+        }
+
         if (flight.getDepartureDate() != null && flight.getDepartureDate().isBefore(LocalDate.now())) {
             throw new BusinessException("No se puede reservar un vuelo cuya fecha de salida ya pasó");
         }
 
-        if (flight.getAvailableSeats() <= 0) {
+        if (flight.getAvailableSeats() == null || flight.getAvailableSeats() <= 0) {
             throw new BusinessException("No hay asientos disponibles en el vuelo ID: " + flight.getId());
         }
 
@@ -55,29 +62,23 @@ public class ReservationServiceImpl implements ReservationService {
                     "El asiento " + dto.getSeatNumber() + " ya está reservado en el vuelo ID: " + flight.getId());
         }
 
-        LocalDateTime now = LocalDateTime.now();
-
-        Reservation reservation = new Reservation();
-        reservation.setFlight(flight);
-        reservation.setPassenger(passenger);
-        reservation.setSeatNumber(dto.getSeatNumber());
-        reservation.setStatus(ReservationStatus.PENDING);
-        reservation.setReservationDate(now);
-
-        if (dto.getUserId() != null) {
-            User user = userRepository.findById(dto.getUserId())
-                    .orElseThrow(() -> new ResourceNotFoundException("User", dto.getUserId()));
-            reservation.setUser(user);
-        }
+        Reservation reservation = Reservation.builder()
+                .flight(flight)
+                .passenger(passenger)
+                .user(currentUser.get().orElse(null))
+                .seatNumber(dto.getSeatNumber())
+                .status(ReservationStatus.PENDING)
+                .reservationDate(LocalDateTime.now())
+                .build();
 
         flight.setAvailableSeats(flight.getAvailableSeats() - 1);
         flightRepository.save(flight);
 
-        Reservation saved = reservationRepository.save(reservation);
-        return reservationMapper.toResponseDTO(saved);
+        return reservationMapper.toResponseDTO(reservationRepository.save(reservation));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ReservationResponseDTO> findAll() {
         return reservationRepository.findAll()
                 .stream()
@@ -86,9 +87,49 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<ReservationResponseDTO> findById(Long id) {
         return reservationRepository.findById(id)
                 .map(reservationMapper::toResponseDTO);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ReservationResponseDTO> findByCurrentUser() {
+        User user = currentUser.require();
+        return reservationRepository.findByUserId(user.getId())
+                .stream()
+                .map(reservationMapper::toResponseDTO)
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public ReservationResponseDTO cancel(Long id) {
+        Reservation reservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation", id));
+
+        User actor = currentUser.require();
+        boolean isAdmin = actor.getRole() == UserRole.ADMIN || actor.getRole() == UserRole.EMPLOYEE;
+        boolean isOwner = reservation.getUser() != null && reservation.getUser().getId().equals(actor.getId());
+
+        if (!isAdmin && !isOwner) {
+            throw new BusinessException("No tienes permiso para cancelar esta reserva");
+        }
+
+        if (reservation.getStatus() == ReservationStatus.CANCELLED) {
+            throw new BusinessException("La reserva ya está cancelada");
+        }
+
+        reservation.setStatus(ReservationStatus.CANCELLED);
+
+        Flight flight = reservation.getFlight();
+        if (flight != null && flight.getAvailableSeats() != null) {
+            flight.setAvailableSeats(flight.getAvailableSeats() + 1);
+            flightRepository.save(flight);
+        }
+
+        return reservationMapper.toResponseDTO(reservationRepository.save(reservation));
     }
 
     @Override

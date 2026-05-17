@@ -10,6 +10,8 @@ public interface AircraftService {
 
     AircraftResponseDTO save(AircraftRequestDTO aircraftDTO);
 
+    AircraftResponseDTO update(Long id, AircraftRequestDTO aircraftDTO);
+
     List<AircraftResponseDTO> findAll();
 
     Optional<AircraftResponseDTO> findById(Long id);

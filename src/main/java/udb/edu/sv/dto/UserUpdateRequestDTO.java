@@ -13,7 +13,7 @@ import udb.edu.sv.entity.enums.UserRole;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserRequestDTO {
+public class UserUpdateRequestDTO {
 
     @NotBlank(message = "El nombre completo es obligatorio")
     @Size(min = 2, max = 100, message = "El nombre debe tener entre 2 y 100 caracteres")
@@ -25,14 +25,13 @@ public class UserRequestDTO {
     @Size(max = 100, message = "El email no puede exceder 100 caracteres")
     private String email;
 
-    @NotBlank(message = "La contraseña es obligatoria")
-    @Size(min = 8, max = 100, message = "La contraseña debe tener entre 8 y 100 caracteres")
-    @Pattern(
-            regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d).+$",
-            message = "La contraseña debe incluir al menos una mayúscula, una minúscula y un número"
-    )
-    private String password;
-
     @NotNull(message = "El rol es obligatorio (ADMIN, EMPLOYEE, CUSTOMER)")
     private UserRole role;
+
+    @Size(min = 8, max = 100, message = "La contraseña debe tener entre 8 y 100 caracteres")
+    @Pattern(
+            regexp = "^(?:|(?=.*[A-Z])(?=.*[a-z])(?=.*\\d).+)$",
+            message = "La contraseña debe incluir mayúscula, minúscula y un número (o quedar vacía para no cambiarla)"
+    )
+    private String password;
 }

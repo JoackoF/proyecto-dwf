@@ -10,6 +10,8 @@ public interface RouteService {
 
     RouteResponseDTO save(RouteRequestDTO routeDTO);
 
+    RouteResponseDTO update(Long id, RouteRequestDTO routeDTO);
+
     List<RouteResponseDTO> findAll();
 
     Optional<RouteResponseDTO> findById(Long id);

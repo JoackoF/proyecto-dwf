@@ -10,6 +10,7 @@ import udb.edu.sv.exception.BusinessException;
 import udb.edu.sv.exception.DuplicateResourceException;
 import udb.edu.sv.exception.ResourceNotFoundException;
 import udb.edu.sv.repository.*;
+import udb.edu.sv.security.CurrentUser;
 import udb.edu.sv.service.BookingService;
 
 import java.time.LocalDate;
@@ -23,6 +24,7 @@ public class BookingServiceImpl implements BookingService {
     private final PassengerRepository passengerRepository;
     private final ReservationRepository reservationRepository;
     private final PaymentRepository paymentRepository;
+    private final CurrentUser currentUser;
 
     @Override
     @Transactional
@@ -31,11 +33,16 @@ public class BookingServiceImpl implements BookingService {
         Flight flight = flightRepository.findById(request.getFlightId())
                 .orElseThrow(() -> new ResourceNotFoundException("Flight", request.getFlightId()));
 
+        if (flight.getStatus() != null && !flight.getStatus().allowsReservations()) {
+            throw new BusinessException(
+                    "El vuelo está en estado " + flight.getStatus() + " y no admite reservas");
+        }
+
         if (flight.getDepartureDate() != null && flight.getDepartureDate().isBefore(LocalDate.now())) {
             throw new BusinessException("No se puede reservar un vuelo cuya fecha de salida ya pasó");
         }
 
-        if (flight.getAvailableSeats() <= 0) {
+        if (flight.getAvailableSeats() == null || flight.getAvailableSeats() <= 0) {
             throw new BusinessException("No hay asientos disponibles en el vuelo ID: " + flight.getId());
         }
 
@@ -59,6 +66,7 @@ public class BookingServiceImpl implements BookingService {
         Reservation reservation = Reservation.builder()
                 .flight(flight)
                 .passenger(passenger)
+                .user(currentUser.get().orElse(null))
                 .reservationDate(now)
                 .seatNumber(request.getSeatNumber())
                 .status(ReservationStatus.CONFIRMED)

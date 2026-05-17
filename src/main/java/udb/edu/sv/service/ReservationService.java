@@ -15,6 +15,10 @@ public interface ReservationService {
 
     Optional<ReservationResponseDTO> findById(Long id);
 
+    List<ReservationResponseDTO> findByCurrentUser();
+
+    ReservationResponseDTO cancel(Long id);
+
     void deleteById(Long id);
 
     void bookFlight(BookingRequestDTO request);

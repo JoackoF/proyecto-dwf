@@ -5,6 +5,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import udb.edu.sv.dto.UserRequestDTO;
 import udb.edu.sv.dto.UserResponseDTO;
+import udb.edu.sv.dto.UserUpdateRequestDTO;
 import udb.edu.sv.entity.User;
 import udb.edu.sv.exception.DuplicateResourceException;
 import udb.edu.sv.exception.ResourceNotFoundException;
@@ -38,8 +39,27 @@ public class UserServiceImpl implements UserService {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        User saved = userRepository.save(user);
-        return userMapper.toResponseDTO(saved);
+        return userMapper.toResponseDTO(userRepository.save(user));
+    }
+
+    @Override
+    public UserResponseDTO update(Long id, UserUpdateRequestDTO dto) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", id));
+
+        if (!user.getEmail().equalsIgnoreCase(dto.getEmail())
+                && userRepository.existsByEmail(dto.getEmail())) {
+            throw new DuplicateResourceException("Otro usuario ya usa el email: " + dto.getEmail());
+        }
+
+        user.setFullName(dto.getFullName());
+        user.setEmail(dto.getEmail());
+        user.setRole(dto.getRole());
+        if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        }
+
+        return userMapper.toResponseDTO(userRepository.save(user));
     }
 
     @Override

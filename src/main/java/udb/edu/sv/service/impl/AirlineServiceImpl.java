@@ -23,8 +23,16 @@ public class AirlineServiceImpl implements AirlineService {
     @Override
     public AirlineResponseDTO save(AirlineRequestDTO airlineDTO) {
         Airline airline = airlineMapper.toEntity(airlineDTO);
-        Airline saved = airlineRepository.save(airline);
-        return airlineMapper.toResponseDTO(saved);
+        return airlineMapper.toResponseDTO(airlineRepository.save(airline));
+    }
+
+    @Override
+    public AirlineResponseDTO update(Long id, AirlineRequestDTO dto) {
+        Airline airline = airlineRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Airline", id));
+        airline.setName(dto.getName());
+        airline.setCode(dto.getCode());
+        return airlineMapper.toResponseDTO(airlineRepository.save(airline));
     }
 
     @Override

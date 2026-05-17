@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import udb.edu.sv.dto.AircraftRequestDTO;
 import udb.edu.sv.dto.AircraftResponseDTO;
@@ -22,36 +23,43 @@ public class AircraftController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<AircraftResponseDTO>>> getAll() {
-        List<AircraftResponseDTO> list = aircraftService.findAll();
         return ResponseEntity.ok(
-                ResponseBuilder.success(list, "Aircraft list retrieved successfully")
+                ResponseBuilder.success(aircraftService.findAll(), "Aeronaves obtenidas")
         );
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<AircraftResponseDTO>> getById(@PathVariable Long id) {
         return aircraftService.findById(id)
-                .map(dto -> ResponseEntity.ok(ResponseBuilder.success(dto, "Aircraft retrieved successfully by ID: " + id)))
+                .map(dto -> ResponseEntity.ok(ResponseBuilder.success(dto, "Aeronave obtenida")))
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(ResponseBuilder.error("Aircraft not found with ID: " + id)));
+                        .body(ResponseBuilder.error("Aeronave no encontrada con ID: " + id)));
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<AircraftResponseDTO>> create(@Valid @RequestBody AircraftRequestDTO dto) {
-        AircraftResponseDTO savedDto = aircraftService.save(dto);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ResponseBuilder.success(savedDto, "Aircraft created successfully"));
+                .body(ResponseBuilder.success(aircraftService.save(dto), "Aeronave creada"));
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<AircraftResponseDTO>> update(
+            @PathVariable Long id,
+            @Valid @RequestBody AircraftRequestDTO dto
+    ) {
+        return ResponseEntity.ok(
+                ResponseBuilder.success(aircraftService.update(id, dto), "Aeronave actualizada")
+        );
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
-        if (aircraftService.findById(id).isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ResponseBuilder.error("Aircraft not found with ID: " + id));
-        }
         aircraftService.deleteById(id);
         return ResponseEntity.ok(
-                ResponseBuilder.success(null, "Aircraft deleted successfully by ID: " + id)
+                ResponseBuilder.success(null, "Aeronave eliminada con ID: " + id)
         );
     }
 }

@@ -2,6 +2,7 @@ package udb.edu.sv.dto;
 
 import jakarta.validation.constraints.*;
 import lombok.*;
+import udb.edu.sv.entity.enums.FlightStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -34,11 +35,14 @@ public class FlightRequestDTO {
     private LocalTime departureTime;
 
     @NotNull(message = "El precio es obligatorio")
-    @DecimalMin(value = "0.0", inclusive = false, message = "El precio debe ser mayor que cero")
-    @Digits(integer = 8, fraction = 2, message = "El precio admite máximo 8 enteros y 2 decimales")
+    @DecimalMin(value = "0.01", message = "El precio debe ser mayor que cero")
+    @DecimalMax(value = "99999.99", message = "El precio no puede superar 99,999.99")
+    @Digits(integer = 5, fraction = 2, message = "El precio admite máximo 5 enteros y 2 decimales")
     private BigDecimal price;
 
-    @NotNull(message = "Los asientos disponibles son obligatorios")
     @Min(value = 0, message = "Los asientos disponibles no pueden ser negativos")
+    @Max(value = 1000, message = "Los asientos no pueden superar 1000")
     private Integer availableSeats;
+
+    private FlightStatus status;
 }
