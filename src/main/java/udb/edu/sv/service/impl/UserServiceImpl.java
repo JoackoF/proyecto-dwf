@@ -7,10 +7,13 @@ import udb.edu.sv.dto.UserRequestDTO;
 import udb.edu.sv.dto.UserResponseDTO;
 import udb.edu.sv.dto.UserUpdateRequestDTO;
 import udb.edu.sv.entity.User;
+import udb.edu.sv.entity.enums.UserRole;
+import udb.edu.sv.exception.BusinessException;
 import udb.edu.sv.exception.DuplicateResourceException;
 import udb.edu.sv.exception.ResourceNotFoundException;
 import udb.edu.sv.mapper.UserMapper;
 import udb.edu.sv.repository.UserRepository;
+import udb.edu.sv.security.CurrentUser;
 import udb.edu.sv.service.UserService;
 
 import java.time.LocalDateTime;
@@ -24,6 +27,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final CurrentUser currentUser;
 
     @Override
     public UserResponseDTO save(UserRequestDTO dto) {
@@ -46,6 +50,22 @@ public class UserServiceImpl implements UserService {
     public UserResponseDTO update(Long id, UserUpdateRequestDTO dto) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", id));
+
+        User actor = currentUser.require();
+        boolean isSelfUpdate = actor.getId().equals(id);
+
+        // Prevenir auto-degradación: el admin no puede quitarse el rol ADMIN a sí mismo
+        if (isSelfUpdate && user.getRole() == UserRole.ADMIN && dto.getRole() != UserRole.ADMIN) {
+            throw new BusinessException(
+                    "No puedes quitarte el rol ADMIN a ti mismo. Pídele a otro administrador que lo haga.");
+        }
+
+        // Prevenir que el último ADMIN se demote (proteger no quedar sin admins)
+        if (user.getRole() == UserRole.ADMIN && dto.getRole() != UserRole.ADMIN
+                && countAdmins() <= 1) {
+            throw new BusinessException(
+                    "No se puede degradar al último administrador del sistema");
+        }
 
         if (!user.getEmail().equalsIgnoreCase(dto.getEmail())
                 && userRepository.existsByEmail(dto.getEmail())) {
@@ -82,9 +102,27 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteById(Long id) {
-        if (!userRepository.existsById(id)) {
-            throw new ResourceNotFoundException("User", id);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", id));
+
+        User actor = currentUser.require();
+
+        // Prevenir auto-eliminación
+        if (actor.getId().equals(id)) {
+            throw new BusinessException("No puedes eliminarte a ti mismo");
         }
+
+        // Prevenir eliminar al último ADMIN
+        if (user.getRole() == UserRole.ADMIN && countAdmins() <= 1) {
+            throw new BusinessException("No se puede eliminar al último administrador del sistema");
+        }
+
         userRepository.deleteById(id);
+    }
+
+    private long countAdmins() {
+        return userRepository.findAll().stream()
+                .filter(u -> u.getRole() == UserRole.ADMIN)
+                .count();
     }
 }

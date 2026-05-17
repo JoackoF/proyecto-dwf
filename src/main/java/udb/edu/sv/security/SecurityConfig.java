@@ -17,6 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -34,7 +35,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder(12);
     }
 
     @Bean
@@ -54,9 +55,10 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of("http://localhost:3000", "http://127.0.0.1:3000"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "X-Requested-With"));
         config.setExposedHeaders(List.of("Authorization"));
         config.setAllowCredentials(true);
+        config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
@@ -70,6 +72,12 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
+                .headers(h -> h
+                        .frameOptions(f -> f.deny())
+                        .contentTypeOptions(c -> {})
+                        .referrerPolicy(rp -> rp.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.NO_REFERRER))
+                        .cacheControl(c -> {})
+                )
                 .exceptionHandling(eh -> eh
                         .authenticationEntryPoint((request, response, authException) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -91,6 +99,7 @@ public class SecurityConfig {
                         })
                 )
                 .authorizeHttpRequests(auth -> auth
+                        // ----- Preflight + login + docs públicos -----
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(
@@ -100,16 +109,56 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/webjars/**"
                         ).permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/flights/**").hasAnyRole("ADMIN", "EMPLOYEE", "CUSTOMER")
+
+                        // ----- /api/users/**: SOLO ADMIN, cualquier método -----
+                        .requestMatchers("/api/users/**").hasRole("ADMIN")
+
+                        // ----- /api/airlines /api/aircraft /api/routes -----
+                        // GET: cualquier autenticado (necesario para que el cliente arme un vuelo)
+                        // Cualquier otro método: solo ADMIN
                         .requestMatchers(HttpMethod.GET, "/api/airlines/**", "/api/aircraft/**", "/api/routes/**")
                                 .hasAnyRole("ADMIN", "EMPLOYEE", "CUSTOMER")
-                        .requestMatchers("/api/airlines/**", "/api/aircraft/**", "/api/routes/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/airlines/**", "/api/aircraft/**", "/api/routes/**")
+                                .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/airlines/**", "/api/aircraft/**", "/api/routes/**")
+                                .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/airlines/**", "/api/aircraft/**", "/api/routes/**")
+                                .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/airlines/**", "/api/aircraft/**", "/api/routes/**")
+                                .hasRole("ADMIN")
+
+                        // ----- /api/flights -----
+                        .requestMatchers(HttpMethod.GET, "/api/flights/**").hasAnyRole("ADMIN", "EMPLOYEE", "CUSTOMER")
                         .requestMatchers(HttpMethod.POST, "/api/flights/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/flights/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/flights/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/flights/**").hasRole("ADMIN")
-                        .requestMatchers("/api/users/**").hasRole("ADMIN")
-                        .requestMatchers("/api/booking/**", "/api/reservations/**", "/api/payments/**", "/api/passengers/**", "/api/claims/**")
-                                .hasAnyRole("ADMIN", "EMPLOYEE", "CUSTOMER")
+
+                        // ----- /api/passengers -----
+                        // GET (lista/individual): ADMIN/EMPLOYEE (los clientes no necesitan ver pasajeros ajenos)
+                        // POST/PUT/DELETE: cubierto por @PreAuthorize en el controller
+                        .requestMatchers(HttpMethod.GET, "/api/passengers/**").hasAnyRole("ADMIN", "EMPLOYEE")
+                        .requestMatchers("/api/passengers/**").hasAnyRole("ADMIN", "EMPLOYEE", "CUSTOMER")
+
+                        // ----- /api/payments -----
+                        // GET: ADMIN/EMPLOYEE; el cliente no necesita listar pagos
+                        .requestMatchers(HttpMethod.GET, "/api/payments/**").hasAnyRole("ADMIN", "EMPLOYEE")
+                        .requestMatchers("/api/payments/**").hasAnyRole("ADMIN", "EMPLOYEE", "CUSTOMER")
+
+                        // ----- /api/reservations -----
+                        // /me: cualquier rol autenticado (filtra por usuario en el service)
+                        // Resto: cualquier autenticado; @PreAuthorize en el controller refina
+                        .requestMatchers("/api/reservations/**").hasAnyRole("ADMIN", "EMPLOYEE", "CUSTOMER")
+
+                        // ----- /api/booking -----
+                        .requestMatchers("/api/booking/**").hasAnyRole("ADMIN", "EMPLOYEE", "CUSTOMER")
+
+                        // ----- /api/claims -----
+                        // GET de todos: ADMIN/EMPLOYEE; resto autenticado
+                        .requestMatchers(HttpMethod.GET, "/api/claims").hasAnyRole("ADMIN", "EMPLOYEE")
+                        .requestMatchers("/api/claims/**").hasAnyRole("ADMIN", "EMPLOYEE", "CUSTOMER")
+
+                        // ----- Cualquier otra petición: autenticado -----
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
