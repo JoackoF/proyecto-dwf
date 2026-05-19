@@ -133,6 +133,24 @@ public class GlobalExceptionHandler {
                         .build());
     }
 
+    @ExceptionHandler(UsuarioNoEncontradoException.class)
+    public ResponseEntity<ErrorResponse> handleUsuarioNoEncontrado(UsuarioNoEncontradoException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ErrorResponse.builder()
+                        .status(HttpStatus.NOT_FOUND.value())
+                        .message("Usuario no encontrado: " + ex.getMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(PaymentFailedException.class)
+    public ResponseEntity<ErrorResponse> handlePaymentFailed(PaymentFailedException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ErrorResponse.builder()
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .message("Error en el pago: " + ex.getMessage())
+                        .build());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -140,27 +158,5 @@ public class GlobalExceptionHandler {
                         .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                         .message("Error interno del servidor")
                         .build());
-    }
-
-    //para que devuelva un mensaje si no ingresamos correctamente los valores
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationErrors(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error ->
-                errors.put(error.getField(), error.getDefaultMessage()));
-        return ResponseEntity.badRequest().body(errors);
-    }
-
-    //para que nos devuelva un mensaje si hay un error en el pago
-    @ExceptionHandler(UsuarioNoEncontradoException.class)
-    public ResponseEntity<String> handleUsuarioNoEncontrado(UsuarioNoEncontradoException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body("El usuario no se ha encontrado: " + ex.getMessage());
-    }
-
-    @ExceptionHandler(PaymentFailedException.class)
-    public ResponseEntity<String> handlePaymentFailed(PaymentFailedException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Error en el pago: " + ex.getMessage());
     }
 }
